@@ -1,27 +1,23 @@
-name: Docker Image CI
-
+# .github/workflows/docker-hub.yml
+name: Docker-Hub
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    branches:
+      - master
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Login Docker
+    - uses: actions/checkout@v2
+
+    - name: Docker Hub login
       env:
-        DOCKER_USER: ${{secrets.DOCKER_USER}}
-        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        DOCKER_NAME: ${{secrets.DOCKER_NAME}}
-      run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag v1
-    - name: Docker Push
-      run: docker push ${{secrets.DOCKER_USER}}/${{secrets.DOCKER_NAME}}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USER }} 
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} 
+      run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin
+
+    - name: Build docker image
+      run: docker build -t $DOCKER_NAME:latest
+
+    - name: Push to Docker Hub
+      run: docker push $DOCKER_NAME:latest
