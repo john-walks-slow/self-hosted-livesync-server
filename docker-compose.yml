@@ -4,21 +4,6 @@ version: "3.7"
 # Modified      : @vrtmrz
 
 services:
-    caddy:
-        image: lucaslorentz/caddy-docker-proxy:ci-alpine
-        container_name: caddy
-        ports:
-            - 80:80
-            - 443:443
-        environment:
-            - CADDY_INGRESS_NETWORKS=caddy
-        networks:
-            - caddy
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - ./data/caddy:/data
-        restart: always
-
     couchserver:
         image: couchdb:3.1.2
         ports:
@@ -32,20 +17,4 @@ services:
             # So when you want to perform git pull or change something, you have to change owners back.
             - ./data/couchdb:/opt/couchdb/data
             - ./conf/local.ini:/opt/couchdb/etc/local.ini
-        networks:
-            - caddy
-        labels:
-            caddy: ${COUCHDB_SERVER}
-            # To avoid being crawled by Malicious Web Crawlers, 
-            # - Make index page to be forbidden.
-            # - Set CouchDB into subdirectory
-            caddy.handle_path: /*
-            caddy.handle_path.0_respond: "\"\" 403"
-            caddy.handle_path.0_header.-Server: ""
-            caddy.handle_path_1: /e=_/* 
-            caddy.handle_path_1.0_reverse_proxy: "{{upstreams 5984}}"
         restart: always
-
-networks:
-  caddy:
-    external: true
