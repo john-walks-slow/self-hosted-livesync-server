@@ -15,11 +15,15 @@ jobs:
       run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin
 
     - name: Build docker image
-      run: docker build .
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }} 
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} 
+        DOCKER_NAME: ${{ secrets.DOCKER_NAME }} 
+      run: docker build . -t $DOCKER_USER/$DOCKER_NAME:latest
 
     - name: Push to Docker Hub
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }} 
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} 
         DOCKER_NAME: ${{ secrets.DOCKER_NAME }} 
-      run: docker push $DOCKER_USER/$DOCKER_NAME
+      run: docker push $DOCKER_USER/$DOCKER_NAME:latest
